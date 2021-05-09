@@ -1,10 +1,11 @@
-TEST?=$$(go list ./... | grep -v 'vendor')
-HOSTNAME=hashicorp.com
-NAMESPACE=edu
+# TEST?=$$(go list ./schemaregistry/... | grep -v 'vendor')
+TEST?=./schemaregistry/...
+HOSTNAME=github.com
+NAMESPACE=arkiaconsulting
 NAME=schemaregistry
 BINARY=terraform-provider-${NAME}
-VERSION=0.2
-OS_ARCH=darwin_amd64
+VERSION=0.1
+OS_ARCH=linux_amd64
 
 default: install
 
@@ -27,7 +28,7 @@ release:
 
 install: build
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+	mv ./dist/${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
 test: 
 	go test -i $(TEST) || exit 1                                                   
