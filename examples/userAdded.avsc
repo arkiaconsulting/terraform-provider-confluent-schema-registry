@@ -1,0 +1,11 @@
+{
+    "type": "record",
+    "name": "userAdded",
+    "namespace": "akc.test",
+    "fields": [
+        {
+            "name": "firstName",
+            "type": "string"
+        }
+    ]
+}

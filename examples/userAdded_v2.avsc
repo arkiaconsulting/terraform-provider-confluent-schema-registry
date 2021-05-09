@@ -1,0 +1,16 @@
+{
+    "type": "record",
+    "name": "userAdded",
+    "namespace": "akc.test",
+    "fields": [
+        {
+            "name": "firstName",
+            "type": "string"
+        },
+        {
+            "name": "lastName",
+            "type": "string",
+            "default": "NOT_SET"
+        }
+    ]
+}

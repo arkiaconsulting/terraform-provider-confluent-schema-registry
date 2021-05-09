@@ -2,9 +2,9 @@ package schemaregistry
 
 import "fmt"
 
-const fixtureAvro1 = `{\"type\":\"record\",\"name\":\"user\",\"namespace\":\"akc.test\",\"fields\":[{\"name\":\"firstName\",\"type\":\"string\"}]}`
-const fixtureAvro2 = `{\"type\":\"record\",\"name\":\"user\",\"namespace\":\"akc.test\",\"fields\":[{\"name\":\"firstName\",\"type\":\"string\"},{\"name\":\"lastName\",\"type\":\"string\",\"default\":\"last\"}]}`
-const fixtureAvro3 = `{\"type\":\"record\",\"name\":\"user\",\"namespace\":\"akc.test\",\"fields\":[{\"name\":\"firstName\",\"type\":\"string\"},{\"name\":\"lastName\",\"type\":\"string\"}]}`
+const fixtureAvro1 = `{\"type\":\"record\",\"name\":\"userAdded\",\"namespace\":\"akc.test\",\"fields\":[{\"name\":\"firstName\",\"type\":\"string\"}]}`
+const fixtureAvro2 = `{\"type\":\"record\",\"name\":\"userAdded\",\"namespace\":\"akc.test\",\"fields\":[{\"name\":\"firstName\",\"type\":\"string\"},{\"name\":\"lastName\",\"type\":\"string\",\"default\":\"last\"}]}`
+const fixtureAvro3 = `{\"type\":\"record\",\"name\":\"userAdded\",\"namespace\":\"akc.test\",\"fields\":[{\"name\":\"firstName\",\"type\":\"string\"},{\"name\":\"lastName\",\"type\":\"string\"}]}`
 
 const fixtureCreateSchema = `
 	resource "schemaregistry_schema" "test" {

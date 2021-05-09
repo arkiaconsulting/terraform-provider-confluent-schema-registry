@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     schemaregistry = {
-      version = "0.1"
+      version = "0.2"
       source  = "github.com/arkiaconsulting/schemaregistry"
     }
   }
@@ -10,8 +10,13 @@ terraform {
 provider "schemaregistry" {
 }
 
+resource "schemaregistry_schema" "user_added" {
+  subject = "MyTopic-akc.test.userAdded"
+  schema  = file("./userAdded.avsc")
+}
+
 data "schemaregistry_schema" "main" {
-  subject = "Akc-key"
+  subject = schemaregistry_schema.user_added.subject
 }
 
 output "schema_id" {
@@ -24,4 +29,8 @@ output "schema_version" {
 
 output "schema_string" {
   value = data.schemaregistry_schema.main.schema
+}
+
+output "schema_schema_id" {
+  value = data.schemaregistry_schema.main.schema_id
 }
