@@ -18,6 +18,12 @@ const fixtureDataSourceSchema = `
 		subject = schemaregistry_schema.test.subject
 	}
 `
+const fixtureImportSchema = `
+	resource "schemaregistry_schema" "import" {
+		subject = "%s"
+		schema = "%s"
+	}
+`
 
 func fixtureDataSourceSchemaBuild(subject string, schema string) string {
 	return fmt.Sprintf("%s%s", fmt.Sprintf(fixtureCreateSchema, subject, schema), fixtureDataSourceSchema)

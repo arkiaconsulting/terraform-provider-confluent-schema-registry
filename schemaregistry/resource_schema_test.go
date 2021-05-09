@@ -97,3 +97,31 @@ func TestAccResourceSchema_updateIncompatible(t *testing.T) {
 		},
 	})
 }
+
+func TestAccResourceSchema_import(t *testing.T) {
+	u, err := uuid.GenerateUUID()
+	if err != nil {
+		t.Fatal(err)
+	}
+	subject := fmt.Sprintf("sub%s", u)
+
+	resource.Test(t, resource.TestCase{
+		ProviderFactories: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(fixtureImportSchema, subject, fixtureAvro1),
+			},
+			{
+				ResourceName:      "schemaregistry_schema.import",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func RequiresImportError(resourceName string) *regexp.Regexp {
+	message := "to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for %q for more information."
+	return regexp.MustCompile(fmt.Sprintf(message, resourceName))
+}

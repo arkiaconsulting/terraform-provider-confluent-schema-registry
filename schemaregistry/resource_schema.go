@@ -16,6 +16,9 @@ func resourceSchema() *schema.Resource {
 		UpdateContext: schemaUpdate,
 		ReadContext:   schemaRead,
 		DeleteContext: schemaDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 		Schema: map[string]*schema.Schema{
 			"subject": {
 				Type:        schema.TypeString,
