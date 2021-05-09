@@ -2,6 +2,7 @@ package schemaregistry
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -76,6 +77,9 @@ func schemaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{})
 	client := meta.(*srclient.SchemaRegistryClient)
 	schema, err := client.CreateSchemaWithArbitrarySubject(subject, schemaString, srclient.Avro)
 	if err != nil {
+		if strings.Contains(err.Error(), "409") {
+			return diag.Errorf(`invalid "schema": incompatible`)
+		}
 		return diag.FromErr(err)
 	}
 
