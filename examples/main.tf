@@ -1,17 +1,18 @@
 terraform {
   required_providers {
     schemaregistry = {
-      version = "0.3"
+      version = "0.4"
       source  = "github.com/arkiaconsulting/schemaregistry"
     }
   }
 }
 
 provider "schemaregistry" {
+  schema_registry_url = "http://localhost:8081"
 }
 
 resource "schemaregistry_schema" "user_added" {
-  subject = "MyTopic-akc.test.userAdded"
+  subject = "MyTopic-akc.test.userAdded-value"
   schema  = file("./userAdded.avsc")
 }
 
