@@ -47,10 +47,13 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	if (url != "") && (username != "") && (password != "") {
+	if (url != "") {
 		client := srclient.CreateSchemaRegistryClient(url)
-		client.SetCredentials(username, password)
 
+		if (username != "") && (password != "") {		
+			client.SetCredentials(username, password)	
+		}
+		
 		return client, diags
 	}
 
