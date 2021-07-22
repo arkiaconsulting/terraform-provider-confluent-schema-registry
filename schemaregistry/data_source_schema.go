@@ -85,20 +85,3 @@ func dataSourceSubjectRead(ctx context.Context, d *schema.ResourceData, m interf
 
 	return diags
 }
-
-func FromRegistryReferences(references []srclient.Reference) []interface{} {
-	if len(references) == 0 {
-		return make([]interface{}, 0)
-	}
-
-	refs := make([]interface{}, 0, len(references))
-	for _, reference := range references {
-		refs = append(refs, map[string]interface{}{
-			"name": reference.Name,
-			"subject": reference.Subject,
-			"version": reference.Version,
-		})
-	}
-
-	return refs
-}
