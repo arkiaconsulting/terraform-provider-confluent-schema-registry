@@ -2,6 +2,7 @@ package schemaregistry
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -19,6 +20,16 @@ func resourceSchema() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		CustomizeDiff: customdiff.ComputedIf("version", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+			oldState, newState := d.GetChange("schema")
+			newJSON, _ := structure.NormalizeJsonString(newState)
+			oldJSON, _ := structure.NormalizeJsonString(oldState)
+			schemaHasChange := newJSON != oldJSON
+
+			// explicitly set a version change on schema change and make dependencies aware of a
+			// version changed at `plan` time (computed field)
+			return schemaHasChange || d.HasChange("version")
+		}),
 		Schema: map[string]*schema.Schema{
 			"subject": {
 				Type:        schema.TypeString,
@@ -46,6 +57,30 @@ func resourceSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The schema string",
 			},
+			"references": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The referenced schema list",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The referenced schema name",
+						},
+						"subject": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The referenced schema subject",
+						},
+						"version": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: "The referenced schema version",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -55,10 +90,11 @@ func schemaCreate(ctx context.Context, d *schema.ResourceData, meta interface{})
 
 	subject := d.Get("subject").(string)
 	schemaString := d.Get("schema").(string)
+	references := ToRegistryReferences(d.Get("references").([]interface{}))
 
 	client := meta.(*srclient.SchemaRegistryClient)
 
-	schema, err := client.CreateSchemaWithArbitrarySubject(subject, schemaString, srclient.Avro)
+	schema, err := client.CreateSchemaWithArbitrarySubject(subject, schemaString, srclient.Avro, references...)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -68,6 +104,10 @@ func schemaCreate(ctx context.Context, d *schema.ResourceData, meta interface{})
 	d.Set("schema", schema.Schema())
 	d.Set("version", schema.Version())
 
+	if err = d.Set("references", FromRegistryReferences(schema.References())); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return diags
 }
 
@@ -76,9 +116,11 @@ func schemaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{})
 
 	subject := d.Get("subject").(string)
 	schemaString := d.Get("schema").(string)
+	references := ToRegistryReferences(d.Get("references").([]interface{}))
 
 	client := meta.(*srclient.SchemaRegistryClient)
-	schema, err := client.CreateSchemaWithArbitrarySubject(subject, schemaString, srclient.Avro)
+
+	schema, err := client.CreateSchemaWithArbitrarySubject(subject, schemaString, srclient.Avro, references...)
 	if err != nil {
 		if strings.Contains(err.Error(), "409") {
 			return diag.Errorf(`invalid "schema": incompatible`)
@@ -89,6 +131,10 @@ func schemaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{})
 	d.Set("schema_id", schema.ID())
 	d.Set("schema", schema.Schema())
 	d.Set("version", schema.Version())
+
+	if err = d.Set("references", FromRegistryReferences(schema.References())); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }
@@ -109,6 +155,10 @@ func schemaRead(ctx context.Context, d *schema.ResourceData, meta interface{}) d
 	d.Set("subject", subject)
 	d.Set("version", schema.Version())
 
+	if err = d.Set("references", FromRegistryReferences(schema.References())); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return diags
 }
 
@@ -124,4 +174,41 @@ func schemaDelete(ctx context.Context, d *schema.ResourceData, meta interface{})
 	}
 
 	return diags
+}
+
+func FromRegistryReferences(references []srclient.Reference) []interface{} {
+	if len(references) == 0 {
+		return make([]interface{}, 0)
+	}
+
+	refs := make([]interface{}, 0, len(references))
+	for _, reference := range references {
+		refs = append(refs, map[string]interface{}{
+			"name": reference.Name,
+			"subject": reference.Subject,
+			"version": reference.Version,
+		})
+	}
+
+	return refs
+}
+
+func ToRegistryReferences(references []interface{}) []srclient.Reference {
+
+	if len(references) == 0 {
+		return make([]srclient.Reference, 0)
+	}
+
+	refs := make([]srclient.Reference, 0, len(references))
+	for _, reference := range references {
+		r := reference.(map[string]interface{})
+
+		refs = append(refs, srclient.Reference{
+			Name: r["name"].(string),
+			Subject: r["subject"].(string),
+			Version: r["version"].(int),
+		})
+	}
+
+	return refs
 }
