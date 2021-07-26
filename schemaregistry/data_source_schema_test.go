@@ -107,3 +107,60 @@ func TestAccDataSourceSchemaReferences_basic(t *testing.T) {
 		},
 	})
 }
+
+func TestAccDataSourceSchema_atVersion(t *testing.T) {
+	// GIVEN
+	url, found := os.LookupEnv("SCHEMA_REGISTRY_URL")
+	if !found {
+		t.Fatalf("SCHEMA_REGISTRY_URL must be set for acceptance tests")
+	}
+	username := os.Getenv("SCHEMA_REGISTRY_USERNAME")
+	password := os.Getenv("SCHEMA_REGISTRY_PASSWORD")
+
+	client := srclient.CreateSchemaRegistryClient(url)
+	if (username != "") && (password != "") {
+		client.SetCredentials(username, password)
+	}
+
+	// AND
+	u, err := uuid.GenerateUUID()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	referencedSchemaSubject := fmt.Sprintf("referencedSub-%s", u)
+	referencedSchema := strings.Replace(fixtureAvro1, "\\", "", -1)
+	referencedSchemaLatest := strings.Replace(fixtureAvro2, "\\", "", -1)
+
+	// AND
+	if _, err = client.CreateSchemaWithArbitrarySubject(referencedSchemaSubject, referencedSchema, srclient.Avro); err != nil {
+		t.Fatalf("could not create schema for subject: %s, err: %s", referencedSchema, err)
+	}
+
+	if _, err = client.CreateSchemaWithArbitrarySubject(referencedSchemaSubject, referencedSchemaLatest, srclient.Avro); err != nil {
+		t.Fatalf("could not create schema for subject: %s, err: %s", referencedSchema, err)
+	}
+
+	// WHEN / THEN
+	resource.Test(t, resource.TestCase{
+		ProviderFactories: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "schemaregistry_schema" "schemaAtVersion" {
+						subject = "%s"
+						version = 1
+					}
+				`, referencedSchemaSubject),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.schemaregistry_schema.schemaAtVersion", "id", referencedSchemaSubject),
+					resource.TestCheckResourceAttr("data.schemaregistry_schema.schemaAtVersion", "subject", referencedSchemaSubject),
+					resource.TestCheckResourceAttrSet("data.schemaregistry_schema.schemaAtVersion", "schema_id"),
+					resource.TestCheckResourceAttr("data.schemaregistry_schema.schemaAtVersion", "version", "1"),
+					resource.TestCheckResourceAttr("data.schemaregistry_schema.schemaAtVersion", "schema", referencedSchema),
+				),
+			},
+		},
+	})
+}
