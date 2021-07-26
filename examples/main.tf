@@ -31,6 +31,12 @@ data "schemaregistry_schema" "main" {
   subject = schemaregistry_schema.with_reference.subject
 }
 
+data "schemaregistry_schema" "user_added_v1" {
+  subject = "MyTopic-akc.test.userAdded-value"
+  schema  = 1
+}
+
+
 output "schema_id" {
   value = data.schemaregistry_schema.main.id
 }

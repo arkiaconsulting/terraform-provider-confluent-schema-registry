@@ -32,7 +32,9 @@ resource "schemaregistry_schema" "main" {
 Schema registry references can be used to allow [putting Several Event Types in the Same Topic](https://www.confluent.io/blog/multiple-event-types-in-the-same-kafka-topic/).
 Please refer to Confluent [Schema Registry API Reference](https://docs.confluent.io/platform/current/schema-registry/develop/api.html) for details.
 
-Referenced versions will always be upgraded with the referenced event schema version.  
+### Upgrade reference version to the latest event schema version
+
+Reference the event schema `resource` from a schema with reference wil upgrade a reference alongside with its referenced schema.
 
 ```
 resource "schemaregistry_schema" "referenced_event" {
@@ -63,7 +65,33 @@ resource "schemaregistry_schema" "with_reference" {
     version = schemaregistry_schema.referenced_event.version
   }
 }
+```
 
+### Stick reference version to a given version
+
+Use a `dataSource` to stick a reference to a **given version**, while upgrading the referenced event schema.
+
+```
+resource "schemaregistry_schema" "referenced_event_latest" {
+  subject = "referenced_event_subject"
+  schema  = file("<avro_schema_file_updated>")
+}
+
+data "schemaregistry_schema" "referenced_event_v1" {
+  subject = "other_referenced_event_subject"
+  schema  = "{\"type\":\"record\",\"name\":\"other_event\",\"namespace\":\"akc.test\",\"fields\":[{\"name\":\"bar\",\"type\":\"string\"}]}"
+}
+
+resource "schemaregistry_schema" "with_reference_to_v1" {
+  subject = "with_reference_subject"
+  schema = "[\"akc.test.event\", \"akc.test.other_event\"]"
+
+  references {
+    name = "akc.test.event"
+    subject = data.schemaregistry_schema.referenced_event_v1.subject
+    version = data.schemaregistry_schema.referenced_event_v1.version
+  }
+}
 ```
 
 ## The schema data source

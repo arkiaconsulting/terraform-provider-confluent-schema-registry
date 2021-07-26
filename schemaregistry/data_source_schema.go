@@ -19,7 +19,7 @@ func dataSourceSchema() *schema.Resource {
 			},
 			"version": {
 				Type:        schema.TypeInt,
-				Computed:    true,
+				Optional:    true,
 				Description: "The version of the schema",
 			},
 			"schema_id": {
@@ -64,13 +64,21 @@ func dataSourceSubjectRead(ctx context.Context, d *schema.ResourceData, m interf
 	var diags diag.Diagnostics
 
 	subject := d.Get("subject").(string)
+	version := d.Get("version").(int)
 
 	client := m.(*srclient.SchemaRegistryClient)
+	var schema *srclient.Schema
+	var err error
 
-	schema, err := client.GetLatestSchemaWithArbitrarySubject(subject)
+	if version > 0 {
+		schema, err = client.GetSchemaByVersionWithArbitrarySubject(subject, version)
+
+	} else {
+		schema, err = client.GetLatestSchemaWithArbitrarySubject(subject)
+	}
+
 	if err != nil {
 		return diag.FromErr(err)
-		// return diag.FromErr(fmt.Errorf("unknown schema for subject '%s'", subject))
 	}
 
 	d.Set("schema", schema.Schema())
