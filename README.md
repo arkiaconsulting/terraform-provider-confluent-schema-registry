@@ -49,14 +49,14 @@ resource "schemaregistry_schema" "with_reference" {
   subject = "with_reference_subject"
   schema = "[\"akc.test.event\", \"akc.test.other_event\"]"
 
-  references {
+  reference {
     name = "akc.test.event"
     subject = schemaregistry_schema.referenced_event.subject
     // version will always be upgraded with the referenced event schema version  
     version = schemaregistry_schema.referenced_event.version
   }
 
-  references {
+  reference {
     name = "akc.test.other_event"
     subject = schemaregistry_schema.user_added.subject
     // version will always be upgraded with the referenced event schema version  

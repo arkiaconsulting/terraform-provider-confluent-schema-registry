@@ -20,7 +20,7 @@ resource "schemaregistry_schema" "with_reference" {
   subject = "with-reference"
   schema = "[\"akc.test.userAdded\"]"
 
-  references {
+  reference {
     name = "akc.test.userAdded"
     subject = schemaregistry_schema.user_added.subject
     version = schemaregistry_schema.user_added.version

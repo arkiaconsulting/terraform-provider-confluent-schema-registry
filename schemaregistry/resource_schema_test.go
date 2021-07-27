@@ -168,10 +168,10 @@ func TestAccResourceSchemaReferences_basic(t *testing.T) {
 				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "version", "1"),
 				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "schema", strings.Replace(`[\"akc.test.userAdded\"]`, "\\", "", -1)),
 
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.#", "1"),
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.0.name", "akc.test.userAdded"),
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.0.subject", fmt.Sprintf("referencedSub-%s", u)),
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.0.version", "1"),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.#", "1"),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.0.name", "akc.test.userAdded"),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.0.subject", fmt.Sprintf("referencedSub-%s", u)),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.0.version", "1"),
 			},
 		},
 		{
@@ -226,15 +226,15 @@ func TestAccResourceSchemaReferences_basic(t *testing.T) {
 				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "version", "1"),
 				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "schema", strings.Replace(`[\"akc.test.userAdded\"]`, "\\", "", -1)),
 
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.#", "2"),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.#", "2"),
 
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.0.name", "akc.test.userAdded"),
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.0.subject", fmt.Sprintf("referencedSub-%s", u)),
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.0.version", "1"),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.0.name", "akc.test.userAdded"),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.0.subject", fmt.Sprintf("referencedSub-%s", u)),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.0.version", "1"),
 
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.1.name", "foo.bar.other"),
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.1.subject", fmt.Sprintf("otherReferencedSub-%s", u)),
-				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.1.version", "1"),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.1.name", "foo.bar.other"),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.1.subject", fmt.Sprintf("otherReferencedSub-%s", u)),
+				resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.1.version", "1"),
 			},
 		},
 	}
@@ -341,8 +341,8 @@ func TestAccResourceSchemaReferences_updateCompatible(t *testing.T) {
 					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "id", schemaWithReferenceSubject),
 					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "version", "1"),
 
-					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.#", "1"),
-					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.0.version", "1"),
+					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.#", "1"),
+					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.0.version", "1"),
 				),
 			},
 			{
@@ -374,8 +374,8 @@ func TestAccResourceSchemaReferences_updateCompatible(t *testing.T) {
 					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "id", schemaWithReferenceSubject),
 					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "version", "2"),
 
-					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.#", "1"),
-					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.0.version", "2"),
+					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.#", "1"),
+					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.0.version", "2"),
 				),
 			},
 		},
@@ -424,8 +424,8 @@ func TestAccResourceSchemaReferences_updateIncompatible(t *testing.T) {
 					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "id", schemaWithReferenceSubject),
 					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "version", "1"),
 
-					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.#", "1"),
-					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "references.0.version", "1"),
+					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.#", "1"),
+					resource.TestCheckResourceAttr("schemaregistry_schema.schemaWithReference", "reference.0.version", "1"),
 				),
 			},
 			{
