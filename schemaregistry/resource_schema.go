@@ -57,7 +57,7 @@ func resourceSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The schema string",
 			},
-			"references": {
+			"reference": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "The referenced schema list",
@@ -90,7 +90,7 @@ func schemaCreate(ctx context.Context, d *schema.ResourceData, meta interface{})
 
 	subject := d.Get("subject").(string)
 	schemaString := d.Get("schema").(string)
-	references := ToRegistryReferences(d.Get("references").([]interface{}))
+	references := ToRegistryReferences(d.Get("reference").([]interface{}))
 
 	client := meta.(*srclient.SchemaRegistryClient)
 
@@ -104,7 +104,7 @@ func schemaCreate(ctx context.Context, d *schema.ResourceData, meta interface{})
 	d.Set("schema", schema.Schema())
 	d.Set("version", schema.Version())
 
-	if err = d.Set("references", FromRegistryReferences(schema.References())); err != nil {
+	if err = d.Set("reference", FromRegistryReferences(schema.References())); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -116,7 +116,7 @@ func schemaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{})
 
 	subject := d.Get("subject").(string)
 	schemaString := d.Get("schema").(string)
-	references := ToRegistryReferences(d.Get("references").([]interface{}))
+	references := ToRegistryReferences(d.Get("reference").([]interface{}))
 
 	client := meta.(*srclient.SchemaRegistryClient)
 
@@ -132,7 +132,7 @@ func schemaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{})
 	d.Set("schema", schema.Schema())
 	d.Set("version", schema.Version())
 
-	if err = d.Set("references", FromRegistryReferences(schema.References())); err != nil {
+	if err = d.Set("reference", FromRegistryReferences(schema.References())); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -155,7 +155,7 @@ func schemaRead(ctx context.Context, d *schema.ResourceData, meta interface{}) d
 	d.Set("subject", subject)
 	d.Set("version", schema.Version())
 
-	if err = d.Set("references", FromRegistryReferences(schema.References())); err != nil {
+	if err = d.Set("reference", FromRegistryReferences(schema.References())); err != nil {
 		return diag.FromErr(err)
 	}
 

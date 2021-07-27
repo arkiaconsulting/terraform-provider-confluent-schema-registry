@@ -73,7 +73,7 @@ func fixtureResourceSchemaWithReferenceBuild(s schemaWithReferenceFixture) strin
 		schema = "{{.WithReferences.Schema}}"
 		{{range .References}}
 
-		references {
+		reference {
 			name = "{{.Name}}"
 			subject = {{.Subject}}
 			version = {{.Version}}
