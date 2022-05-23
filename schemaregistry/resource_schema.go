@@ -2,8 +2,9 @@ package schemaregistry
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -81,6 +82,13 @@ func resourceSchema() *schema.Resource {
 					},
 				},
 			},
+			"schema_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "The schema type",
+				Default:      "avro",
+				ExactlyOneOf: []string{"avro", "json"},
+			},
 		},
 	}
 }
@@ -91,10 +99,15 @@ func schemaCreate(ctx context.Context, d *schema.ResourceData, meta interface{})
 	subject := d.Get("subject").(string)
 	schemaString := d.Get("schema").(string)
 	references := ToRegistryReferences(d.Get("reference").([]interface{}))
+	schemaType := srclient.Avro
+
+	if d.Get("schema_type").(string) == "json" {
+		schemaType = srclient.Json
+	}
 
 	client := meta.(*srclient.SchemaRegistryClient)
 
-	schema, err := client.CreateSchemaWithArbitrarySubject(subject, schemaString, srclient.Avro, references...)
+	schema, err := client.CreateSchemaWithArbitrarySubject(subject, schemaString, schemaType, references...)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -117,10 +130,15 @@ func schemaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{})
 	subject := d.Get("subject").(string)
 	schemaString := d.Get("schema").(string)
 	references := ToRegistryReferences(d.Get("reference").([]interface{}))
+	schemaType := srclient.Avro
+
+	if d.Get("schema_type").(string) == "json" {
+		schemaType = srclient.Json
+	}
 
 	client := meta.(*srclient.SchemaRegistryClient)
 
-	schema, err := client.CreateSchemaWithArbitrarySubject(subject, schemaString, srclient.Avro, references...)
+	schema, err := client.CreateSchemaWithArbitrarySubject(subject, schemaString, schemaType, references...)
 	if err != nil {
 		if strings.Contains(err.Error(), "409") {
 			return diag.Errorf(`invalid "schema": incompatible`)
@@ -184,7 +202,7 @@ func FromRegistryReferences(references []srclient.Reference) []interface{} {
 	refs := make([]interface{}, 0, len(references))
 	for _, reference := range references {
 		refs = append(refs, map[string]interface{}{
-			"name": reference.Name,
+			"name":    reference.Name,
 			"subject": reference.Subject,
 			"version": reference.Version,
 		})
@@ -204,7 +222,7 @@ func ToRegistryReferences(references []interface{}) []srclient.Reference {
 		r := reference.(map[string]interface{})
 
 		refs = append(refs, srclient.Reference{
-			Name: r["name"].(string),
+			Name:    r["name"].(string),
 			Subject: r["subject"].(string),
 			Version: r["version"].(int),
 		})
