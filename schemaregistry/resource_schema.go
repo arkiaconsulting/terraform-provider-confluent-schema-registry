@@ -83,14 +83,22 @@ func resourceSchema() *schema.Resource {
 				},
 			},
 			"schema_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  "The schema type",
-				Default:      "avro",
-				ExactlyOneOf: []string{"avro", "json"},
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The schema type",
+				Default:     "avro",
 			},
 		},
 	}
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }
 
 func schemaCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"terraform-provider-schema-registry/schemaregistry"
+	"terraform-provider-confluent-schema-registry/schemaregistry"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
