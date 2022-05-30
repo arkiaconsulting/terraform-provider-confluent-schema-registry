@@ -1,4 +1,4 @@
-module terraform-provider-schema-registry
+module terraform-provider-confluent-schema-registry
 
 go 1.16
 
