@@ -103,6 +103,9 @@ func schemaCreate(ctx context.Context, d *schema.ResourceData, meta interface{})
 	if d.Get("schema_type").(string) == "json" {
 		schemaType = srclient.Json
 	}
+	if d.Get("schema_type").(string) == "protobuf" {
+		schemaType = srclient.Protobuf
+	}
 
 	client := meta.(*srclient.SchemaRegistryClient)
 
@@ -133,6 +136,9 @@ func schemaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{})
 
 	if d.Get("schema_type").(string) == "json" {
 		schemaType = srclient.Json
+	}
+	if d.Get("schema_type").(string) == "protobuf" {
+		schemaType = srclient.Protobuf
 	}
 
 	client := meta.(*srclient.SchemaRegistryClient)
